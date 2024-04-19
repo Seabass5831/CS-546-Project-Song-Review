@@ -1,0 +1,18 @@
+<main>
+<h1 id="titleFound">Song Found</h1>
+<a id ="makeAnotherSearch" href="/">Make another search</a>
+<div>
+    {{#each songList}}
+    <h1 id="title"> {{this.name}} </h1>
+     {{#each this.artists}}
+     <p id="artists"> Artist: {{this.this.name}} </p>
+     {{/each}}
+     <p id="album"> Album Name : {{this.album.name}} </p>
+     <p id="releaseDate"> Release Date: {{this.album.release_date}} </p>
+     {{/each}}
+     {{#each this.genres}} <p id="genre"> Genre: {{this}} </p> {{/each}}
+
+
+</div>
+</main>
+
