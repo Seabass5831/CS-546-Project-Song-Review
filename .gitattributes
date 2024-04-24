@@ -3,3 +3,5 @@
 
 #prvent .env file from being commited
 .env
+
+.node_modules
