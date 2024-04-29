@@ -1,18 +1,14 @@
-import axios from "axios";
 import helpers from "../helpers.js";
 import spotifyApi from "./spotifyAuth.js";
 import { ObjectId } from "mongodb";
 import { songs } from "../config/mongoCollections.js";
-/*
- getSongByName => get a song by name => params : [songName]
-  getGenreSeeds => get the genre seeds (list of all genres)
-  getGenreByArtist => get the genre by artist => params : [artist]
-  getAll => get all songs from the database
-  getSongById => get a song by id => params : [id]
-  create => create a new song => params : [title, artist, album, genres]
-  remove => remove a song => params : [id]
-  update => update a song => params : [id, title, artist, album, genres]*/
+
 const exportedMethods = {
+  /**
+   * Get a song by name.
+   * @param {string} songName - The name of the song.
+   * @returns {Promise<Object>} The song object.
+   */
   async getSongByName(songName) {
     try {
       const song = await spotifyApi.search(songName, ["track"], {
@@ -24,7 +20,11 @@ const exportedMethods = {
       console.log(err);
     }
   },
-  //list of all genres
+
+  /**
+   * Get the genre seeds (list of all genres).
+   * @returns {Promise<Array>} The list of genre seeds.
+   */
   async getGenreSeeds() {
     try {
       const seeds = await spotifyApi.getAvailableGenreSeeds();
@@ -33,7 +33,12 @@ const exportedMethods = {
       console.log(err);
     }
   },
-  //get genre by artist
+
+  /**
+   * Get the genre by artist.
+   * @param {string} artist - The name of the artist.
+   * @returns {Promise<Object>} The genre object.
+   */
   async getGenreByArtist(artist) {
     try {
       const search = await spotifyApi.searchArtists(artist);
@@ -43,7 +48,11 @@ const exportedMethods = {
     }
   },
 
-  //DATABASE FUNCTIONS
+  //DATABASE ACCESS METHODS
+  /**
+   * Get all songs from the database.
+   * @returns {Promise<Array>} The list of songs.
+   */
   async getAll() {
     const songsCollection = await songs();
     const song = await songsCollection
@@ -53,6 +62,11 @@ const exportedMethods = {
     return song;
   },
 
+  /**
+   * Get a song by ID.
+   * @param {string} id - The ID of the song.
+   * @returns {Promise<Object>} The song object.
+   */
   async getSongById(id) {
     id = helpers.checkId(id, "id");
     const songsCollection = await songs();
@@ -63,12 +77,13 @@ const exportedMethods = {
     song._id = song._id.toString();
     return song;
   },
-  //create the entry into the Song collection
-  //general entry to the database if the song is not in there.
+
+  /**
+   * Create a new song.
+   * @param {Array} params - The parameters for creating a song: [title, artist, album, releaseDate, genre].
+   * @returns {Promise<Object>} The newly created song object.
+   */
   async create([title, artist, album, releaseDate, genre]) {
-    /* Requires title artist album releaseDate and Genre, reviewScores is optional and can be
-    called when the user creates a review For a song. Need to check for string input
-    and need to check array on genre and object on reivewScores */
     try {
       // input parsing / type checking
       helpers.requiredParams([title, artist, album, releaseDate, genre]);
@@ -103,6 +118,11 @@ const exportedMethods = {
     }
   },
 
+  /**
+   * Remove a song by ID.
+   * @param {string} songId - The ID of the song to remove.
+   * @returns {Promise<Object>} The deletion information.
+   */
   async remove(songId) {
     try {
       helpers.requiredParams([songId]);
@@ -119,6 +139,12 @@ const exportedMethods = {
       console.log(err);
     }
   },
+
+  /**
+   * Update a song by ID.
+   * @param {Array} params - The parameters for updating a song: [songId, title, artist, album, releaseDate, genre].
+   * @returns {Promise<Object>} The updated song object.
+   */
   async update([songId, title, artist, album, releaseDate, genre]) {
     try {
       helpers.requiredParams([
@@ -167,4 +193,5 @@ const exportedMethods = {
     }
   },
 };
+
 export default exportedMethods;

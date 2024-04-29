@@ -1,14 +1,17 @@
 import SpotifyWebApi from "spotify-web-api-node";
+import dotenv from "dotenv";
+dotenv.config();
 /*
  getAccessToken => get an access token for spotify
   Setup spotify API
   import for use in other files */
 
+
 // Set up Spotify API credentials
 const spotifyApi = new SpotifyWebApi({
-  clientId: "6e2899240f2d4830a467092f35b58b00",
-  clientSecret: "b9cb2ad1e6764dcba20d6e39b9d3b73a",
-  redirectUri: "https://localhost:3000",
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+  redirectUri: process.env.SPOTIFY_REDIRECT_URI,
 });
 
 // Retrieve an access token
@@ -17,9 +20,6 @@ async function getAccessToken() {
     const data = await spotifyApi.clientCredentialsGrant();
     const accessToken = data.body.access_token;
     spotifyApi.setAccessToken(accessToken);
-    spotifyApi.setCredentials({
-      accessToken: accessToken,
-    });
 
     return accessToken;
   } catch (error) {
@@ -27,5 +27,7 @@ async function getAccessToken() {
     throw error;
   }
 }
-await getAccessToken();
+
+getAccessToken().catch(console.error);
+
 export default spotifyApi;

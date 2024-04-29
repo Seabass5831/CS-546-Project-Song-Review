@@ -1,17 +1,21 @@
 import helpers from "../helpers.js";
 import spotifyApi from "./spotifyAuth.js";
 import { reviews, songs, users } from "../config/mongoCollections.js";
-import { ObjectId } from "mongodb";
-/*
- create => creates a new review => params : [songId, userId, text, sentiment, stars]
-  remove => removes a review => params : [reviewId]
-  get => get a review by id => params : [reviewId]
-  getAll => get all reviews for a song => params : [songId]
-  update => update a review => params : [reviewId, text, sentiment, stars]*/
+import { ObjectId } from "mongodb"
+
+
 const exportedMethods = {
+  /**
+   * Creates a new review.
+   *
+   * @param {string} songId - The ID of the song.
+   * @param {string} userId - The ID of the user.
+   * @param {string} text - The review text.
+   * @param {string} sentiment - The sentiment of the review.
+   * @param {number} stars - The number of stars given in the review.
+   * @returns {Promise<Object>} The newly created review.
+   */
   async create([songId, userId, text, sentiment, stars]) {
-    /*
-     */
     try {
       // type checking
       helpers.requiredParams([songId, userId, text, sentiment, stars]);
@@ -56,6 +60,13 @@ const exportedMethods = {
       console.log(err);
     }
   },
+
+  /**
+   * Removes a review by its ID.
+   *
+   * @param {string} reviewId - The ID of the review to be removed.
+   * @returns {Promise<Object>} The result of the removal operation.
+   */
   async remove(reviewId) {
     try {
       //removes review by id
@@ -73,6 +84,13 @@ const exportedMethods = {
       console.log(err);
     }
   },
+
+  /**
+   * Retrieves a review by its ID.
+   *
+   * @param {string} reviewId - The ID of the review to be retrieved.
+   * @returns {Promise<Object>} The retrieved review.
+   */
   async get(reviewId) {
     try {
       //get single review by id
@@ -87,6 +105,13 @@ const exportedMethods = {
       console.log(err);
     }
   },
+
+  /**
+   * Retrieves all reviews for a given song.
+   *
+   * @param {string} songId - The ID of the song.
+   * @returns {Promise<Array>} An array of reviews for the song.
+   */
   async getAll(songId) {
     //get all reivews for a song.
     try {
@@ -101,6 +126,17 @@ const exportedMethods = {
       console.log(err);
     }
   },
+
+  /**
+   * Updates a review with new information.
+   *
+   * @param {string} reviewId - The ID of the review to be updated.
+   * @param {string} text - The new review text.
+   * @param {string} sentiment - The new sentiment of the review.
+   * @param {number} stars - The new number of stars given in the review.
+   * @param {string} postedDate - The new posted date of the review.
+   * @returns {Promise<Object>} The updated review.
+   */
   async update(reviewId, text, sentiment, stars, postedDate) {
     //only updates text and sentiment
     try {
@@ -132,6 +168,44 @@ const exportedMethods = {
       return updateInfo;
     } catch (err) {
       console.log(err);
+    }
+  },
+
+  /**
+   * Retrieves all reviews written by a given user.
+   *
+   * @param {string} userId - The ID of the user.
+   * @returns {Promise<Array>} An array of reviews written by the user.
+   */
+  async getAllByUser(userId) {
+    try {
+      helpers.requiredParams([userId]);
+      userId = helpers.checkId(userId, "userId");
+      const reviewCollection = await reviews();
+      const userReviews = await reviewCollection.find({ userId }).toArray();
+      return userReviews;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  },
+
+  /**
+   * Retrieves all reviews with a given sentiment.
+   *
+   * @param {string} sentiment - The sentiment to filter reviews by.
+   * @returns {Promise<Array>} An array of reviews with the specified sentiment.
+   */
+  async getAllBySentiment(sentiment) {
+    try {
+      helpers.requiredParams([sentiment]);
+      sentiment = helpers.checkString(sentiment, "sentiment");
+      const reviewCollection = await reviews();
+      const sentimentReviews = await reviewCollection.find({ sentiment }).toArray();
+      return sentimentReviews;
+    } catch (err) {
+      console.log(err);
+      throw err;
     }
   },
 };

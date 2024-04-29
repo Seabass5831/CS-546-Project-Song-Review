@@ -1,4 +1,5 @@
 import { ObjectId } from "mongodb";
+
 const exportedMethods = {
   checkString(strVal, varName) {
     if (!strVal) throw `Error: You must supply a ${varName}!`;
@@ -16,6 +17,7 @@ const exportedMethods = {
       }
     }
   },
+
   isValidDateFormat(dateString) {
     // Regular expression to match the format YYYY-MM-DD
     const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
@@ -73,5 +75,6 @@ const exportedMethods = {
     }
     return arr;
   },
+
 };
 export default exportedMethods;
