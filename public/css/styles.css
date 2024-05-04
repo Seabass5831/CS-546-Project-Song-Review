@@ -1,0 +1,88 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #home {
+    text-align: center;
+    padding: 50px;
+  }
+  
+  #title {
+    font-size: 36px;
+    color: #333;
+  }
+  
+  #description {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  form {
+    margin-top: 20px;
+  }
+  
+  input[type="text"], input[type="submit"] {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  input[type="text"] {
+    width: 250px;
+  }
+  
+  input[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  input[type="submit"]:hover {
+    background-color: #0056b3;
+  }
+  
+  main {
+    text-align: center;
+    padding: 50px;
+  }
+  
+  #titleFound {
+    font-size: 36px;
+    color: #333;
+  }
+  
+  #makeAnotherSearch {
+    display: block;
+    margin-top: 20px;
+    color: #007bff;
+    text-decoration: none;
+    font-size: 18px;
+  }
+  
+  #makeAnotherSearch:hover {
+    text-decoration: underline;
+  }
+  
+  div {
+    margin-top: 30px;
+  }
+  
+  #artists {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  #album,
+  #releaseDate,
+  #genre {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 10px;
+  }

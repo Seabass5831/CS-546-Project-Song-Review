@@ -73,12 +73,13 @@ router.route("/song/get").get(async (req, res) => {
 router.route("/song/:songId").get(async (req, res) => {
   try {
     req.params.songId = helpers.checkId(req.params.songId, "songId");
-  } catch (e) {
-    res.status(400).json({ error: e.message });
-  }
-  try {
     const song = await songData.getSongById(req.params.songId);
-    return res.status(200).json(song);
+
+    if(!song || song === null) {
+      res.status(404).json({error: "Song not found"});
+      return;
+    }
+    res.status(200).json(song);
   } catch (e) {
     return res.status(404).json({ error: e.message });
   }
