@@ -154,6 +154,9 @@ async getUserByEmail(email) {
 async validatePassword(userId, password) {
   try {
     helpers.requiredParams([userId, password]);
+    if (typeof userId !== 'string') {
+      userId = userId.toString();
+    }
     userId = helpers.checkId(userId, "userId");
     password = helpers.checkString(password, "password");
     const user = await this.getUserById(userId);

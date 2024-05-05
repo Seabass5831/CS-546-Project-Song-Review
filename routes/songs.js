@@ -6,7 +6,8 @@ const router = Router();
 
 router.route("/").get(async (req, res) => {
   try {
-    res.render("home", { title: "Song finder" });
+    const userLoggedIn = !!req.session.userId;
+    res.render("home", { title: "Song finder", userLoggedIn });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

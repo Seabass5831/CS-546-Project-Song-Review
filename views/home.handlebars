@@ -2,8 +2,17 @@
 <h1 id="title">Search </h1>
 <p id="description">Search for songs by title, genre, or director</p>
 <p id="description">Click on a song to see more information</p>
+
+<!-- Song Search Form -->
 <form action="/search" method="POST">
   <input type="text" name="search" id="search" placeholder="Search...">
   <input type="submit" value="Search">
 </form>
+
+<!-- Quick Links for Login/Register -->
+{{#unless userLoggedIn}}
+        <p>
+            <a href="/users/login">Login</a> or <a href="/users/register">Register</a> to leave reviews.
+        </p>
+    {{/unless}}
 </main>
