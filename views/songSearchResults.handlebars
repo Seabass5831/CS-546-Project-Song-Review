@@ -1,15 +1,53 @@
 <main>
-<h1 id="titleFound">Song Found</h1>
-<a id ="makeAnotherSearch" href="/">Make another search</a>
-<div>
-    {{#each songList}}
-    <h1 id="title"><a href="/song/{{this.id}}">{{this.name}}</a> </h1>
-    {{#each this.artists}}
-    <p id="artists"> Artist: {{this.this.name}} </p>
-    {{/each}}
-    {{/each}}
+    <h1 id="titleFound">Song Found</h1>
+    <a id="makeAnotherSearch" href="/">Make another search</a>
+    <div>
+        <ul>
+            {{#each songList}}
+            <li>
+                <a href="javascript:void(0);"
+                    onclick="handleSongClick('{{this.id}}', '{{this.name}}', '{{this.artists.[0].name}}')">
+                    {{this.name}} by {{this.artists.[0].name}}
+                </a>
+            </li>
+            {{/each}}
+        </ul>
+
+        <script>
+            function handleSongClick(spotifyId, title, artists, album, releaseDate, genres) {
+                // Check if the song exists in the database by name and artist
+                fetch(`/song/check?name=${encodeURIComponent(name)}&artist=${encodeURIComponent(artist)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            window.location.href = `/song/details/${spotifyId}`; // Redirect to song details if exists
+                        } else {
+                            createSong(spotifyId, title, artists, album, releaseDate, genres);
+                        }
+                    })
+                    .catch(error => console.error('Error handling song click:', error));
+            }
+
+            function createSong(spotifyId, title, artists, album, releaseDate, genres) {
+                fetch('/song/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ spotifyId, title, artists, album, releaseDate, genres })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Song added to the database!');
+                            window.location.href = `/song/details/${spotifyId}`;
+                        }
+                    })
+                    .catch(error => console.error('Error creating song:', error));
+            }
+        </script>
 
 
-</div>
+
+    </div>
 </main>
-
