@@ -46,27 +46,36 @@ router.route("/song/check/").get(async (req, res) => {
 })
 
 router.route("/song/create").post(async (req, res) => {
-  const { spotifyId, title } = req.body;
+  const { spotifyId, title, artist } = req.body;
 
   try {
-    // Fetch additional song details from Spotify
     const spotifySongResponse = await spotifyApi.getTrack(spotifyId);
-    const spotifySong = spotifySongResponse.body;
-
-    if (!spotifySong) {
+    if (!spotifySongResponse.body) {
       return res.status(404).json({ error: "Song not found on Spotify" });
     }
 
+    const spotifySong = spotifySongResponse.body;
+
+    const artistNames = spotifySong.artists.map(a => a.name);
+    const artistGenres = new Set();  
+    for (const artist of spotifySong.artists) {
+      const artistDetails = await spotifyApi.getArtist(artist.id);
+      if (artistDetails && artistDetails.body && artistDetails.body.genres) {
+        artistDetails.body.genres.forEach(genre => artistGenres.add(genre));
+      }
+    }
+
+    console.log("Genres fetched:", Array.from(artistGenres));
+
     const newSongDetails = {
       spotifyId: spotifyId,
-      title: title || spotifySong.name, 
-      artist: spotifySong.artists.map(a => a.name),  
+      title: title || spotifySong.name,
+      artist: artist || artistNames.join(", "),
       album: spotifySong.album.name,
       releaseDate: spotifySong.album.release_date,
-      genre: spotifySong.artists[0].genres || []
+      genre: artistGenres.size > 0 ? Array.from(artistGenres).join(", ") : 'Unknown'
     };
 
-    // Check if the song already exists in the database
     const songCollection = await songs();
     const existingSong = await songCollection.findOne({ spotifyId: spotifyId });
     if (existingSong) {
@@ -77,6 +86,7 @@ router.route("/song/create").post(async (req, res) => {
     if (!insertResult.acknowledged) {
       throw new Error("Failed to insert the song.");
     }
+
     res.status(201).json({ success: true, songId: insertResult.insertedId.toString() });
   } catch (error) {
     console.error("Failed to create song: ", error);
@@ -97,27 +107,28 @@ router.route("/song/:spotifyId").get(async (req, res) => {
   const spotifyId = req.params.spotifyId;
 
   try {
-    // try to find the song in the database by Spotify ID
-    let song = await songData.getSongBySpotifyId(spotifyId);
+    const songCollection = await songs();
+    let song = await songCollection.findOne({ spotifyId: spotifyId });
 
     if (!song) {
-      // song not found in the database, fetch from Spotify
-      const spotifySong = await spotifyApi.getTrack(spotifyId);
-      if (!spotifySong) {
-        return res.status(404).render('error', { error: "Song not found on Spotify" });
+      const spotifySongResponse = await spotifyApi.getTrack(spotifyId);
+      if (!spotifySongResponse || !spotifySongResponse.body) {
+        return res.status(404).json({ error: "Song not found on Spotify" });
       }
 
-      // insert song into database
+      const spotifySong = spotifySongResponse.body;
+
       const newSongDetails = {
-        title: spotifySong.body.name,
-        artist: spotifySong.body.artists.map(a => a.name).join(", "),
-        album: spotifySong.body.album.name,
-        releaseDate: spotifySong.body.release_date,
-        genre: spotifySong.body.genres.join(", "),
-        spotifyId: spotifyId
+        spotifyId: spotifyId,
+        title: spotifySong.name,
+        artist: spotifySong.artists.map(a => a.name).join(", "),
+        album: spotifySong.album.name,
+        releaseDate: spotifySong.album.release_date,
+        genre: spotifySong.genres ? spotifySong.genres.join(", ") : 'Unknown'
       };
 
-      song = await songData.create(newSongDetails);
+      await songCollection.insertOne(newSongDetails);
+      song = newSongDetails; 
     }
 
     res.render("songDetails", {
@@ -129,7 +140,7 @@ router.route("/song/:spotifyId").get(async (req, res) => {
     });
   } catch (error) {
     console.error("Failed to process song details: ", error);
-    res.status(500).render('error', { error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

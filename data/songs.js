@@ -2,6 +2,7 @@ import helpers from "../helpers.js";
 import spotifyApi from "./spotifyAuth.js";
 import { ObjectId } from "mongodb";
 import { songs } from "../config/mongoCollections.js";
+import SpotifyWebApi from "spotify-web-api-node";
 
 const exportedMethods = {
   /**
@@ -34,6 +35,11 @@ const exportedMethods = {
     }
   },
 
+  async getSongBySpotifyId(spotifyId) {
+    const songCollection = await songs();
+    const song = await songCollection.findOne({ spotifyId: spotifyId});
+    return song;
+  },
   /**
    * Get the genre by artist.
    * @param {string} artist - The name of the artist.

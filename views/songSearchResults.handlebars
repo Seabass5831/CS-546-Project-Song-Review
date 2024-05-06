@@ -3,19 +3,13 @@
     <a id="makeAnotherSearch" href="/">Make another search</a>
     <div>
         <ul>
-            {{#each songList}}
-            <li>
-                <a href="javascript:void(0);"
-                    onclick="handleSongClick('{{this.id}}', '{{this.name}}', '{{this.artists.[0].name}}')">
-                    {{this.name}} by {{this.artists.[0].name}}
-                </a>
-            </li>
-            {{/each}}
-        </ul>
+  {{#each songList}}
+    <li><a href="/song/{{this.id}}">{{this.name}}</a> by {{this.artists.[0].name}}</li>
+  {{/each}}
+</ul>
 
         <script>
             function handleSongClick(spotifyId, title, artists, album, releaseDate, genres) {
-                // Check if the song exists in the database by name and artist
                 fetch(`/song/check?name=${encodeURIComponent(name)}&artist=${encodeURIComponent(artist)}`)
                     .then(response => response.json())
                     .then(data => {
