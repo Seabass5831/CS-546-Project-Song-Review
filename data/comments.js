@@ -1,15 +1,19 @@
 import helpers from "../helpers.js";
 import { comments } from "../config/mongoCollections.js";
 import { ObjectId } from "mongodb";
-/*
- exportedMethods
-  create => create a new comment => params: [reviewId, userId, content, postedDate]
-  remove => remove a comment => params: [commentId]
-  get => get a comment => params: [commentId]
-  getAll => get all comments for a review => params: [reviewId]
-  update => update a comment => params: [commentId, reviewId, userId, content, postedDate]*/
+
+
 
 const exportedMethods = {
+  /**
+   * Creates a new comment.
+   * @param {string} reviewId - The ID of the review.
+   * @param {string} userId - The ID of the user.
+   * @param {string} content - The content of the comment.
+   * @param {string} postedDate - The date the comment was posted.
+   * @returns {Promise<Comment>} The newly created comment.
+   * @throws {Error} If any of the required parameters are missing or invalid.
+   */
   async create([reviewId, userId, content, postedDate]) {
     try {
       helpers.requiredParams([reviewId, userId, content, postedDate]);
@@ -35,6 +39,13 @@ const exportedMethods = {
       throw err;
     }
   },
+
+  /**
+   * Removes a comment.
+   * @param {string} commentId - The ID of the comment.
+   * @returns {Promise<DeletionInfo>} The deletion information.
+   * @throws {Error} If the comment with the specified ID cannot be found.
+   */
   async remove(commentId) {
     try {
       helpers.requiredParams([commentId]);
@@ -52,6 +63,13 @@ const exportedMethods = {
       throw err;
     }
   },
+
+  /**
+   * Gets a comment by its ID.
+   * @param {string} commentId - The ID of the comment.
+   * @returns {Promise<Comment>} The comment.
+   * @throws {Error} If the comment with the specified ID cannot be found.
+   */
   async get(commentId) {
     try {
       helpers.requiredParams([commentId]);
@@ -66,21 +84,40 @@ const exportedMethods = {
       throw err;
     }
   },
+
+  /**
+   * Gets all comments for a review.
+   * @param {string} reviewId - The ID of the review.
+   * @returns {Promise<Comment[]>} The list of comments.
+   * @throws {Error} If the review with the specified ID cannot be found.
+   */
   async getAll(reviewId) {
     try {
       helpers.requiredParams([reviewId]);
       reviewId = helpers.checkId(reviewId, "reviewId");
       const commentCollection = await comments();
-      const ListOfcomments = await commentCollection
+      const listOfComments = await commentCollection
         .find({ reviewId: reviewId })
         .toArray();
-      return ListOfcomments;
+      return listOfComments;
     } catch (err) {
       console.log(err);
       throw err;
     }
   },
-  async update([commentId, reviewId, userId, content, postedDate]) {
+
+  /**
+   * Updates a comment.
+   * @param {string} commentId - The ID of the comment.
+   * @param {string} reviewId - The ID of the review.
+   * @param {string} userId - The ID of the user.
+   * @param {string} content - The content of the comment.
+   * @param {string} postedDate - The date the comment was posted.
+   * @returns {Promise<Comment>} The updated comment.
+   * @throws {Error} If any of the required parameters are missing or invalid,
+   * or if the comment with the specified ID cannot be found.
+   */
+  async update(commentId, reviewId, userId, content, postedDate) {
     try {
       helpers.requiredParams([commentId, userId, content, postedDate]);
       commentId = helpers.checkId(commentId, "commentId");
@@ -120,5 +157,63 @@ const exportedMethods = {
       throw err;
     }
   },
+
+  /**
+   * Gets comments by a user.
+   * @param {string} userId - The ID of the user.
+   * @returns {Array} The list of comments.
+   * @throws {Error} If the user with the specified ID cannot be found.
+   */
+  async getByUser(userId) {
+    try {
+      helpers.requiredParams([userId]);
+      userId = helpers.checkId(userId, "userId");
+      const commentCollection = await comments();
+      const userComments = await commentCollection.find({ userId: userId }).toArray();
+      return userComments;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  },
+
+  /**
+   * Gets the most recent comments.
+   * @param {number} limit - The maximum number of comments to retrieve.
+   * @returns {Array} The list of recent comments.
+   * @throws {Error} If the limit is missing or invalid.
+   */
+  async getRecent(limit) {
+    try {
+      helpers.requiredParams([limit]);
+      limit = helpers.checkNumber(limit, "limit");
+      const commentCollection = await comments();
+      const recentComments = await commentCollection.find().sort({ postedDate: -1 }).limit(limit).toArray();
+      return recentComments;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  },
+
+  /**
+   * Gets the count of comments by a user.
+   * @param {string} userId - The ID of the user.
+   * @returns {number} The count of comments.
+   * @throws {Error} If the user with the specified ID cannot be found.
+   */
+  async getCountByUser(userId) {
+    try {
+      helpers.requiredParams([userId]);
+      userId = helpers.checkId(userId, "userId");
+      const commentCollection = await comments();
+      const count = await commentCollection.countDocuments({ userId: userId });
+      return count;
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  },
 };
+
 export default exportedMethods;

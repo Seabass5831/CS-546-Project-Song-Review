@@ -2,14 +2,16 @@ import helpers from "../helpers.js";
 import { playlists } from "../config/mongoCollections.js";
 import { ObjectId } from "mongodb";
 
-/*
- create => create a playlist => params : [userId, name, songIds]
-  getAll => get all playlists for a user => params: [userId]
-  get => get a playlist by id => params: [id]
-  remove => remove a playlist by id => params: [id]
-  update => update a playlist => params: [id, userId, name, songIds]*/
 
 const exportedMethods = {
+  /**
+   * Creates a new playlist.
+   * @param {string} userId - The ID of the user who owns the playlist.
+   * @param {string} name - The name of the playlist.
+   * @param {string[]} songIds - An array of song IDs in the playlist.
+   * @returns {Promise<PlaylistWithId>} The newly created playlist.
+   * @throws {Error} If any required parameter is missing or invalid.
+   */
   async create([userId, name, songIds]) {
     try {
       helpers.requiredParams([userId, name, songIds]);
@@ -30,6 +32,13 @@ const exportedMethods = {
       throw err;
     }
   },
+
+  /**
+   * Retrieves all playlists for a user.
+   * @param {string} userId - The ID of the user.
+   * @returns {Promise<PlaylistWithId[]>} An array of playlists owned by the user.
+   * @throws {Error} If any required parameter is missing or invalid.
+   */
   async getAll(userId) {
     try {
       helpers.requiredParams([userId]);
@@ -44,6 +53,13 @@ const exportedMethods = {
       throw err;
     }
   },
+
+  /**
+   * Retrieves a playlist by its ID.
+   * @param {string} id - The ID of the playlist.
+   * @returns {Promise<PlaylistWithId>} The playlist with the specified ID.
+   * @throws {Error} If any required parameter is missing or invalid.
+   */
   async get(id) {
     try {
       helpers.requiredParams([id]);
@@ -58,6 +74,13 @@ const exportedMethods = {
       throw err;
     }
   },
+
+  /**
+   * Removes a playlist by its ID.
+   * @param {string} id - The ID of the playlist to remove.
+   * @returns {Promise<object>} The deletion information.
+   * @throws {Error} If any required parameter is missing or invalid, or if the playlist cannot be deleted.
+   */
   async remove(id) {
     try {
       helpers.requiredParams([id]);
@@ -75,6 +98,15 @@ const exportedMethods = {
       throw err;
     }
   },
+
+  /**
+   * Updates a playlist.
+   * @param {string} id - The ID of the playlist to update.
+   * @param {string} name - The new name of the playlist.
+   * @param {string[]} songIds - The new array of song IDs in the playlist.
+   * @returns {Promise<PlaylistWithId>} The updated playlist.
+   * @throws {Error} If any required parameter is missing or invalid, or if the playlist cannot be updated.
+   */
   async update([id, name, songIds]) {
     try {
       helpers.requiredParams([id, name, songIds]);
@@ -105,5 +137,58 @@ const exportedMethods = {
       throw err;
     }
   },
+
+  /**
+   * Adds a song to a playlist.
+   * @param {string} playlistId - The ID of the playlist.
+   * @param {string} songId - The ID of the song to add.
+   * @returns {Promise<PlaylistWithId>} The updated playlist.
+   * @throws {Error} If any required parameter is missing or invalid, or if the song cannot be added to the playlist.
+   */
+  async addSong(playlistId, songId) {
+    try {
+      helpers.requiredParams([playlistId, songId]);
+      playlistId = helpers.checkId(playlistId, "playlistId");
+      songId = helpers.checkId(songId, "songId");
+      const playlistCollection = await playlists();
+      const updateInfo = await playlistCollection.updateOne(
+        { _id: playlistId },
+        { $push: { songIds: songId } }
+      );
+      if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+        throw new Error('Update failed');
+      return await this.get(playlistId);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  },
+
+  /**
+   * Removes a song from a playlist.
+   * @param {string} playlistId - The ID of the playlist.
+   * @param {string} songId - The ID of the song to remove.
+   * @returns {Promise<PlaylistWithId>} The updated playlist.
+   * @throws {Error} If any required parameter is missing or invalid, or if the song cannot be removed from the playlist.
+   */
+  async removeSong(playlistId, songId) {
+    try {
+      helpers.requiredParams([playlistId, songId]);
+      playlistId = helpers.checkId(playlistId, "playlistId");
+      songId = helpers.checkId(songId, "songId");
+      const playlistCollection = await playlists();
+      const updateInfo = await playlistCollection.updateOne(
+        { _id: playlistId },
+        { $pull: { songIds: songId } }
+      );
+      if (!updateInfo.matchedCount && !updateInfo.modifiedCount)
+        throw new Error('Update failed');
+      return await this.get(playlistId);
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  },
 };
+
 export default exportedMethods;

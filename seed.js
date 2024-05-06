@@ -17,8 +17,10 @@ try {
     "warkentin",
     "warkentin@uw.edu",
     "password",
+    ["pop", "popular"],
+
   ]);
-  user2 = await users.create(["mk", "gee", "gee@uw.edu", "different password"]);
+  user2 = await users.create(["mk", "gee", "gee@uw.edu", "different password", ["Soul", "Rock"],]);
 } catch (err) {
   console.log(err);
 }
