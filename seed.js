@@ -13,6 +13,7 @@ await db.dropDatabase();
 let user1, user2, song1, song2, review1, review2;
 try {
   user1 = await users.create([
+    "username1",
     "drew",
     "warkentin",
     "warkentin@uw.edu",
@@ -20,7 +21,7 @@ try {
     ["pop", "popular"],
 
   ]);
-  user2 = await users.create(["mk", "gee", "gee@uw.edu", "different password", ["Soul", "Rock"],]);
+  user2 = await users.create(["username2", "mk", "gee", "gee@uw.edu", "different password", ["Soul", "Rock"],]);
 } catch (err) {
   console.log(err);
 }

@@ -37,13 +37,14 @@ document.addEventListener('DOMContentLoaded', function() {
         registerForm.addEventListener('submit', function(e) {
             e.preventDefault();
             console.log('Form submission started');
+            const username = document.getElementById('username').value;
             const firstName = document.getElementById('firstName').value;
             const lastName = document.getElementById('lastName').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const favoriteGenres = document.getElementById('favoriteGenres').value;
 
-            if (!firstName || !lastName || !email || !password || !favoriteGenres) {
+            if (!username || !firstName || !lastName || !email || !password || !favoriteGenres) {
                 document.getElementById('registerError').textContent = 'Please fill in all required fields.';
                 return;
             }
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    username,
                     firstName,
                     lastName,
                     email,

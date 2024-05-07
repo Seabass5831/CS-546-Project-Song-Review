@@ -1,21 +1,77 @@
 <main>
     <h1>Your Profile</h1>
+    <p><strong>Username:</strong>{{username}}</p>
     <p><strong>First Name:</strong> {{firstName}}</p>
     <p><strong>Last Name:</strong> {{lastName}}</p>
     <p><strong>Email:</strong> {{email}}</p>
+    <h2>Friends</h2>
+    {{#if friends.length}}
+    <ul>
+        {{#each friends}}
+        <li>{{this.username}}</li>
+        {{/each}}
+    </ul>
+    {{else}}
+    <p>You have no friends added.</p>
+    {{/if}}
+    <form id="addFriendForm" method="POST" action="/users/addFriend">
+        <label for="username">Username to add as friend:</label>
+        <input type="text" id="username" name="username" required>
+        <button type="submit">Add Friend</button>
+    </form>
     <p><strong>Favorite Genres:</strong> {{favoriteGenres}}</p>
     <h2>Reviews Posted</h2>
     {{#if reviews.length}}
-        {{#each reviews}}
-            <div class="review">
-                <h3>{{this.songTitle}} by {{this.artists}}</h3>
-                <p>Review: {{this.reviewText}}</p>
-                <p>Rating: {{this.reviewStars}}/3</p>
-                <p>Reviewed on: {{this.reviewDate}}</p>
-            </div>
-        {{/each}}
+    {{#each reviews}}
+    <div class="review">
+        <h3>{{this.songTitle}} by {{this.artists}}</h3>
+        <p>Review: {{this.reviewText}}</p>
+        <p>Rating: {{this.reviewStars}}/3</p>
+        <p>Reviewed on: {{this.reviewDate}}</p>
+    </div>
+    {{/each}}
     {{else}}
-        <p>You have not reviewed any songs yet.</p>
+    <p>You have not reviewed any songs yet.</p>
     {{/if}}
     <a href="/users/logout">Logout</a>
 </main>
+
+<script>
+    console.log('Script loaded.');
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('addFriendForm');
+        if (!form) {
+            console.log('Form not found');
+            return;
+        }
+        form.onsubmit = async function (event) {
+            event.preventDefault();
+            console.log('Form submission prevented.');
+            const formData = new FormData(this);
+            const username = formData.get('username');
+            console.log('Username:', username);
+
+            try {
+                const response = await fetch('/users/addFriend', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: username })
+                });
+
+                if (response.ok) {
+                    console.log('Friend added successfully!');
+                    alert('Friend added successfully!');
+                    window.location.reload(); // Reload to see the updated friend list
+                } else {
+                    console.log('Failed to add friend.');
+                    alert('Failed to add friend.');
+                }
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('Error submitting form. Check console for details.');
+            }
+        };
+    });
+</script>

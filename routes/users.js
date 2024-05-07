@@ -2,6 +2,7 @@ import { Router } from "express";
 import userData from "../data/users.js";
 import reviewData from "../data/reviews.js";
 import helpers from "../helpers.js";
+import { users } from "../config/mongoCollections.js";
 
 const router = Router();
 
@@ -15,12 +16,14 @@ router.get("/profile", async (req, res) => {
     try {
         const user = await userData.getUserById(req.session.userId);
         const reviewsDetails = await reviewData.getUserReviewsWithDetails(userId);
-        console.log(reviewsDetails);
+        const friendsDetails = await Promise.all(user.friends.map(friendId => userData.getUserById(friendId)));
+        
         res.render("profile/profile", {
             title: "Profile",
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
+            friends: friendsDetails,
             favoriteGenres: user.favoriteGenres,
             reviews: reviewsDetails,
             userLoggedIn: userLoggedIn
@@ -71,9 +74,10 @@ router.get("/register", (req, res) => {
 // Registration form submission
 router.post("/register", async (req,res) => {
     try {
-        let { firstName, lastName, email, password, favoriteGenres } = req.body;
+        let { username, firstName, lastName, email, password, favoriteGenres } = req.body;
         favoriteGenres = favoriteGenres.split(",").map(genre => genre.trim());
         const newUser = await userData.create([
+            username,
             firstName,
             lastName,
             email,
@@ -97,4 +101,27 @@ router.get("/logout", (req, res) => {
     });
 });
 
+router.get("/addFriend", (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect("/login");
+    }
+    res.render("addFriend", { title: "Add Friend" });
+});
+
+router.post("/addFriend", async (req, res) => {
+    const friendUsername = req.body.username;
+    const userId = req.session.userId;
+
+    if (!userId) {
+        return res.status(403).send("You must be logged in to add friends.");
+    }
+
+    try {
+        await userData.addFriendByUsername(userId, friendUsername);
+        res.redirect('/users/profile');  // Redirect back to profile on success
+    } catch (error) {
+        console.error('Error adding friend:', error);
+        res.status(500).send(error.message);  // Display error message
+    }
+});
 export default router;
