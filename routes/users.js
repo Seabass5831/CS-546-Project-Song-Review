@@ -18,7 +18,6 @@ router.get("/profile", async (req, res) => {
             lastName: user.lastName,
             email: user.email,
             favoriteGenres: user.favoriteGenres.join(', '),
-            listenedSongs: user.listenedSongs,
             reviewsPosted: user.reviewsPosted,
             userLoggedIn: userLoggedIn
         });

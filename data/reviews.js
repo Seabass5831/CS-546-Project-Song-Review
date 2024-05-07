@@ -19,7 +19,9 @@ const exportedMethods = {
     try {
       // type checking
       helpers.requiredParams([songId, userId, text, sentiment, stars]);
-      songId = helpers.checkId(songId, "songId");
+      console.log("songId create: ", songId);
+      //songId = id.songId;
+      //songId = helpers.checkId(songId, "songId");
       //make sure its in the database?
       const songCollection = await songs();
       const song = await songCollection.findOne({ _id: new ObjectId(songId) });
@@ -54,8 +56,16 @@ const exportedMethods = {
       };
       const reviewCollection = await reviews();
       const newReview = await reviewCollection.insertOne(review);
-      newReview._id = newReview.insertedId.toString();
-      console.out("review: ", newReview);
+      console.log("review created: ", newReview);
+
+      const reviewId = newReview.insertedId;
+      const updateResult = await songCollection.updateOne(
+        { _id: new ObjectId(songId) },
+        { $push: { reviews: reviewId } }
+      );
+      if (updateResult.modifiedCount === 0) {
+        throw new Error("Could not update song with review");
+      }
       return newReview;
     } catch (err) {
       console.log(err);
@@ -110,19 +120,29 @@ const exportedMethods = {
   /**
    * Retrieves all reviews for a given song.
    *
-   * @param {string} songId - The ID of the song.
+   * @param {string} id - The ID of the song.
    * @returns {Promise<Array>} An array of reviews for the song.
    */
-  async getAll(songId) {
+  async getAll(id) {
     //get all reivews for a song.
+    //console.log("id: ", id)
+    const reviewCollection = await reviews();
+    const songCollection = await songs();
     try {
-      helpers.requiredParams([songId]);
-      songId = helpers.checkId(songId, "songId");
-      const reviewCollection = await reviews();
-      const ListOfreviews = await reviewCollection
-        .find({ songId: songId })
-        .toArray();
-      return ListOfreviews;
+      helpers.requiredParams([id]);
+      const songId = id.songId;
+      //console.log("extracted id: ", songId);
+
+      
+      const song = await songCollection.findOne({ _id: new ObjectId(songId) });
+      if (!song) throw new Error("song not found");
+
+      const reviews = await Promise.all(
+        song.reviews.map(reviewId =>
+          reviewCollection.findOne({ _id: new ObjectId(reviewId) })
+        )
+      );
+      return reviews.filter(review => review !== null);
     } catch (err) {
       console.log(err);
     }
@@ -209,6 +229,24 @@ const exportedMethods = {
       throw err;
     }
   },
+
+  /** 
+  * @param {string} spotifyId - The ID of the song.
+  * @returns {Promise<Object>} The newly created review.
+  */
+  async getIdBySpotifyId(spotifyId) {
+    try {
+      const songCollection = await songs();
+      const song = await songCollection.findOne({ spotifyId: spotifyId });
+      if (!song) {
+        throw new Error(`Could not find song with spotifyId ${spotifyId}`);
+      }
+      song._id = song._id;
+      return song._id;
+    } catch (e) {
+      console.error("Error with translation: ", e);
+    }
+  }
 };
 
 export default exportedMethods;

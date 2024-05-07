@@ -1,9 +1,11 @@
 import { Router } from "express";
+import { ObjectId } from "mongodb";
 import reviewData from "../data/reviews.js";
 
 const router = Router();
 
 router.get('/', async (req, res) => {
+    console.log("help");
     try {
         const reviews = await reviewData.getAll();
         res.json(reviews);
@@ -12,24 +14,50 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/reviews/:songId', async (req, res) => {
-    const songId = req.params.songId; // ID of the song being reviewed
-    const userId = req.session.userId; // Assumes user ID is stored in session
-    const { text, stars } = req.body; // Review text and star rating from the form
-    console.log(songId, userId, text, stars);
-  
+router.get('/:spotifyId', async (req, res) => {
+    const spotifyId = req.params.spotifyId;
+    let songId = await reviewData.getIdBySpotifyId(spotifyId);
+    songId = songId.toString();
+    console.log("Song ID:", songId);
+    
+    try {
+        const reviews = await reviewData.getAll({ songId: songId.toString() });
+        if (reviews.length > 0) {
+            res.render('reviews.handlebars', { 
+                reviews: reviews,
+                spotifyId: spotifyId,
+                title: 'Reviews' 
+            });
+        } else {
+            res.render('reviews.handlebars', { reviews: [], spotifyId, title: 'No Reviews Found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/:spotifyId', async (req, res) => {
+    const spotifyId = req.params.spotifyId;
+    const userId = req.session.userId;
+    const { text, stars } = req.body;
+
+    let songId = await reviewData.getIdBySpotifyId(spotifyId);
+
     if (!userId) {
-      return res.status(403).json({ error: "User must be logged in to post reviews" });
-  }
-  
-  try {
-      // Validation and processing here
-      const newReview = await reviewData.create(songId, userId, text, 'positive', parseInt(stars));
-      res.redirect(`/song/${songId}`);
-  } catch (error) {
-      console.error("Failed to submit review:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-  }
-  });
+        return res.status(403).json({ error: "User must be logged in to post reviews" });
+    }
+
+    try {
+        console.log("Posting Review:", { songId, userId, text, stars });
+        const newReview = await reviewData.create(songId, userId, text, 'positive', parseInt(stars));
+        if (!newReview) {
+            return res.status(500).json({ error: "Failed to add review" });
+        }
+        res.redirect(`/reviews/${spotifyId}`);
+    } catch (error) {
+        console.error("Failed to submit review:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 export default router;

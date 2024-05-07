@@ -133,21 +133,21 @@ router.route("/song/:spotifyId").get(async (req, res) => {
       song = newSongDetails; 
     }
 
-    const reviews = await reviewData.getAll(song._id.toString());
-
     res.render("songDetails", {
+      spotifyId: song.spotifyId,
       title: song.title,
       artist: song.artist,
       album: song.album,
       releaseDate: song.releaseDate,
       genre: song.genre,
-      reviews: reviews,
     });
   } catch (error) {
     console.error("Failed to process song details: ", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+
 /*
 router.post('/:songId', async (req, res) => {
   const songId = req.params.songId; // ID of the song being reviewed
