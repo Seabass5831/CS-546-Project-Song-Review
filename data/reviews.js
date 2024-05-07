@@ -15,8 +15,7 @@ const exportedMethods = {
    * @param {number} stars - The number of stars given in the review.
    * @returns {Promise<Object>} The newly created review.
    */
-  async create([songId, userId, text, sentiment, stars]) {
-    console.log("Create function");
+  async create(songId, userId, text, sentiment, stars) {
     try {
       // type checking
       helpers.requiredParams([songId, userId, text, sentiment, stars]);
