@@ -108,6 +108,7 @@ const exportedMethods = {
         album,
         releaseDate,
         genre,
+        reviews: [],
       };
       const songCollection = await songs();
       //check if already in the database

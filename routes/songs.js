@@ -2,6 +2,7 @@ import { Router } from "express";
 import songData from "../data/songs.js";
 import helpers from "../helpers.js";
 import { songs } from "../config/mongoCollections.js";
+import reviewData from "../data/reviews.js";
 import spotifyApi from "../data/spotifyAuth.js";
 
 const router = Router();
@@ -124,19 +125,23 @@ router.route("/song/:spotifyId").get(async (req, res) => {
         artist: spotifySong.artists.map(a => a.name).join(", "),
         album: spotifySong.album.name,
         releaseDate: spotifySong.album.release_date,
-        genre: spotifySong.genres ? spotifySong.genres.join(", ") : 'Unknown'
+        genre: spotifySong.genres ? spotifySong.genres.join(", ") : 'Unknown',
+        reviews: [],
       };
 
       await songCollection.insertOne(newSongDetails);
       song = newSongDetails; 
     }
 
+    const reviews = await reviewData.getAll(song._id.toString());
+
     res.render("songDetails", {
       title: song.title,
       artist: song.artist,
       album: song.album,
       releaseDate: song.releaseDate,
-      genre: song.genre
+      genre: song.genre,
+      reviews: reviews,
     });
   } catch (error) {
     console.error("Failed to process song details: ", error);
