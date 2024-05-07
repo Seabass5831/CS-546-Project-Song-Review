@@ -1,0 +1,17 @@
+<main>
+    <h2>Reviews</h2>
+    {{#each reviews}}
+    <div class="reviews">
+        <strong>Rating:</strong> {{this.stars}}/3<br>
+        <strong>Review:</strong> {{this.text}}<br>
+        <strong>Date:</strong> {{this.postedDate}}
+    </div>
+    {{/each}}
+
+    <form method="POST" action="/reviews/{{songId}}">
+        <textarea name="text" required></textarea>
+        <input type="number" name="stars" required min="1" max="3">
+        <button type="submit">Submit Review</button>
+    </form>
+    <a href="/song/{{songId}}">Back to Song</a>  
+</main>

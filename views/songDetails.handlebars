@@ -4,22 +4,7 @@
     <p>Album: {{album}}</p>
     <p>Release Date: {{releaseDate}}</p>
     <p>Genre: {{genre}}</p>
+    <a href="reviews/{{songId}}">View Reviews</a>
     <a href="/">Back to search</a>
 
-    <form method="POST" action="/reviews/{{songId}}">
-    <textarea name="text" required></textarea>
-    <input type="number" name="stars" required min="1" max="5">
-    <input type="hidden" name="userId" value="{{userId}}"> <!-- Assuming userId is available -->
-    <input type="hidden" name="sentiment" value="positive"> <!-- Example static sentiment -->
-    <button type="submit">Submit Review</button>
-</form>
-
-    <h2>Reviews</h2>
-    {{#each reviews}}
-    <div class="reviews">
-        <strong>Rating:</strong> {{this.stars}}/3<br>
-        <strong>Review:</strong> {{this.text}}<br>
-        <strong>Date:</strong> {{this.postedDate}}
-    </div>
-    {{/each}}
 </main>
