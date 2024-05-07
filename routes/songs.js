@@ -1,8 +1,6 @@
 import { Router } from "express";
 import songData from "../data/songs.js";
-import helpers from "../helpers.js";
 import { songs } from "../config/mongoCollections.js";
-import reviewData from "../data/reviews.js";
 import spotifyApi from "../data/spotifyAuth.js";
 
 const router = Router();
@@ -10,19 +8,23 @@ const router = Router();
 router.route("/").get(async (req, res) => {
   try {
     const userLoggedIn = !!req.session.userId;
-    res.render("home", { title: "Song finder", userLoggedIn });
+    res.render("home", { title: "Song finder", userLoggedIn: userLoggedIn });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 router.route("/search").post(async (req, res) => {
   try {
+    const userLoggedIn = !!req.session.userId;
     const songName = req.body.search;
     const song = await songData.getSongByName(songName);
     const songList = song.body.tracks.items;
+
     res.render("songSearchResults", {
       title: "Song finder",
       songList: songList,
+      userLoggedIn: userLoggedIn
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -106,6 +108,7 @@ router.route("/song/get").get(async (req, res) => {
 
 router.route("/song/:spotifyId").get(async (req, res) => {
   const spotifyId = req.params.spotifyId;
+  const userLoggedIn = !!req.session.userId;
 
   try {
     const songCollection = await songs();
@@ -140,6 +143,7 @@ router.route("/song/:spotifyId").get(async (req, res) => {
       album: song.album,
       releaseDate: song.releaseDate,
       genre: song.genre,
+      userLoggedIn: userLoggedIn
     });
   } catch (error) {
     console.error("Failed to process song details: ", error);
@@ -147,26 +151,4 @@ router.route("/song/:spotifyId").get(async (req, res) => {
   }
 });
 
-
-/*
-router.post('/:songId', async (req, res) => {
-  const songId = req.params.songId; // ID of the song being reviewed
-  const userId = req.session.userId; // Assumes user ID is stored in session
-  const { text, stars } = req.body; // Review text and star rating from the form
-  console.log(songId, userId, text, stars);
-
-  if (!userId) {
-    return res.status(403).json({ error: "User must be logged in to post reviews" });
-}
-
-try {
-    // Validation and processing here
-    const newReview = await reviewData.create(songId, userId, text, 'positive', parseInt(stars));
-    res.redirect(`/song/${songId}`);
-} catch (error) {
-    console.error("Failed to submit review:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-}
-});
-*/
 export default router;

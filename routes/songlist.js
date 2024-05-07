@@ -4,6 +4,7 @@ import spotifyApi from "../data/spotifyAuth.js";
 const router = Router();
 
 router.route("/").get(async (req, res) => {
+  const userLoggedIn = !!req.session.userId;
   try {
     const playlistId = "37i9dQZEVXbLRQDuF5jeBp";
     const playlistResponse = await spotifyApi.getPlaylistTracks(playlistId);
@@ -13,7 +14,11 @@ router.route("/").get(async (req, res) => {
         artist: item.track.artists.map(artist => artist.name).join(", "),
         album: item.track.album.name
       }));
-      res.render("songlist", { songs: songs, title: "Top 50 Songs on Spotify" });
+      res.render("songlist", { 
+        songs: songs, 
+        title: "Top 50 Songs on Spotify", 
+        userLoggedIn: userLoggedIn
+      });
     } else {
       res.status(404).render("error", { error: "Playlist not found" });
     }

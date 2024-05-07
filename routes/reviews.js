@@ -16,9 +16,10 @@ router.get('/', async (req, res) => {
 
 router.get('/:spotifyId', async (req, res) => {
     const spotifyId = req.params.spotifyId;
+    const userLoggedIn = !!req.session.userId;
     let songId = await reviewData.getIdBySpotifyId(spotifyId);
+
     songId = songId.toString();
-    console.log("Song ID:", songId);
     
     try {
         const reviews = await reviewData.getAll({ songId: songId.toString() });
@@ -26,10 +27,11 @@ router.get('/:spotifyId', async (req, res) => {
             res.render('reviews.handlebars', { 
                 reviews: reviews,
                 spotifyId: spotifyId,
-                title: 'Reviews' 
+                title: 'Reviews',
+                userLoggedIn: userLoggedIn
             });
         } else {
-            res.render('reviews.handlebars', { reviews: [], spotifyId, title: 'No Reviews Found' });
+            res.render('reviews.handlebars', { reviews: [], spotifyId, title: 'No Reviews Found', userLoggedIn: userLoggedIn });
         }
     } catch (error) {
         res.status(500).json({ error: error.message });

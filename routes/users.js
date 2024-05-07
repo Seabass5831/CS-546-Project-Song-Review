@@ -13,11 +13,13 @@ router.get("/profile", async (req, res) => {
     }
     const userLoggedIn = !!req.session.userId;
     const userId = req.session.userId;
+    
     try {
         const user = await userData.getUserById(req.session.userId);
         const reviewsDetails = await reviewData.getUserReviewsWithDetails(userId);
         const friendsDetails = await Promise.all(user.friends.map(friendId => userData.getUserById(friendId)));
-        
+        const reviewCount = user.reviewsPosted.length;
+
         res.render("profile/profile", {
             title: "Profile",
             username: user.username,
@@ -27,6 +29,7 @@ router.get("/profile", async (req, res) => {
             favoriteGenres: user.favoriteGenres,
             friends: friendsDetails,
             reviews: reviewsDetails,
+            reviewCount: reviewCount,
             userLoggedIn: userLoggedIn
         });
     } catch (error) {
