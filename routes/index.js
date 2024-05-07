@@ -1,7 +1,7 @@
 import songRoutes from "./songs.js";
 import userRoutes from "./users.js";
-import songlistRoutes from "./songlist.js";
 import reviewRoutes from "./reviews.js";
+import songlistRoutes from "./songlist.js";
 import { static as staticDir } from "express";
 
 const constructorMethod = (app) => {
