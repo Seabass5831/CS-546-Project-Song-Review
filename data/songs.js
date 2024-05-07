@@ -74,13 +74,13 @@ const exportedMethods = {
    * @returns {Promise<Object>} The song object.
    */
   async getSongById(id) {
-    id = helpers.checkId(id, "id");
     const songsCollection = await songs();
-    const song = await songsCollection.findOne({ _id: new ObjectId(id) });
-    if (!song || song === null) {
-      throw new Error(`could not find product with id ${id}`);
+    const song = await songsCollection.findOne({ _id: id });
+  
+    if (!song) {
+      throw new Error(`No song found with id: ${id}`);
     }
-    song._id = song._id.toString();
+  
     return song;
   },
 

@@ -15,7 +15,8 @@ const exportedMethods = {
    * @param {number} stars - The number of stars given in the review.
    * @returns {Promise<Object>} The newly created review.
    */
-  async create(songId, userId, text, sentiment, stars) {
+  async create([songId, userId, text, sentiment, stars]) {
+    console.log("Create function");
     try {
       // type checking
       helpers.requiredParams([songId, userId, text, sentiment, stars]);
@@ -55,7 +56,7 @@ const exportedMethods = {
       const reviewCollection = await reviews();
       const newReview = await reviewCollection.insertOne(review);
       newReview._id = newReview.insertedId.toString();
-      console.out("review: ", newReview);
+      console.log("review: ", newReview);
       return newReview;
     } catch (err) {
       console.log(err);
