@@ -20,11 +20,12 @@ router.get("/profile", async (req, res) => {
         
         res.render("profile/profile", {
             title: "Profile",
+            username: user.username,
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            friends: friendsDetails,
             favoriteGenres: user.favoriteGenres,
+            friends: friendsDetails,
             reviews: reviewsDetails,
             userLoggedIn: userLoggedIn
         });

@@ -1,9 +1,10 @@
 <main>
     <h1>Your Profile</h1>
-    <p><strong>Username:</strong>{{username}}</p>
+    <p><strong>Username:</strong> {{username}}</p>
     <p><strong>First Name:</strong> {{firstName}}</p>
     <p><strong>Last Name:</strong> {{lastName}}</p>
     <p><strong>Email:</strong> {{email}}</p>
+    <p><strong>Favorite Genres:</strong> {{favoriteGenres}}</p>
     <h2>Friends</h2>
     {{#if friends.length}}
     <ul>
@@ -19,7 +20,6 @@
         <input type="text" id="username" name="username" required>
         <button type="submit">Add Friend</button>
     </form>
-    <p><strong>Favorite Genres:</strong> {{favoriteGenres}}</p>
     <h2>Reviews Posted</h2>
     {{#if reviews.length}}
     {{#each reviews}}
