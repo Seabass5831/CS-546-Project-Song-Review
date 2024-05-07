@@ -20,10 +20,9 @@ const exportedMethods = {
       // type checking
       helpers.requiredParams([songId, userId, text, sentiment, stars]);
       console.log("songId create: ", songId);
-      //songId = id.songId;
-      //songId = helpers.checkId(songId, "songId");
       //make sure its in the database?
       const songCollection = await songs();
+      const userCollection = await users();
       const song = await songCollection.findOne({ _id: new ObjectId(songId) });
       if (!song) {
         throw new Error(`Could not find song with id ${songId}`);
@@ -31,7 +30,6 @@ const exportedMethods = {
 
       userId = helpers.checkId(userId, "userId");
       //make sure its in the database?
-      const userCollection = await users();
       const user = await userCollection.findOne({ _id: new ObjectId(userId) });
       if (!user) {
         throw new Error(`Could not find user with id ${userId}`);
@@ -65,6 +63,14 @@ const exportedMethods = {
       );
       if (updateResult.modifiedCount === 0) {
         throw new Error("Could not update song with review");
+      }
+
+      const updateUserResult = await userCollection.updateOne(
+        { _id: new ObjectId(userId) },
+        { $push: { reviewsPosted: reviewId } }
+      );
+      if (updateUserResult.modifiedCount === 0) {
+        throw new Error("Could not update user with review");
       }
       return newReview;
     } catch (err) {
@@ -246,6 +252,32 @@ const exportedMethods = {
     } catch (e) {
       console.error("Error with translation: ", e);
     }
+  },
+
+  async getUserReviewsWithDetails(userId) {
+    const userCollection = await users();
+    const reviewCollection = await reviews();
+    const songCollection = await songs();
+
+    // Fetch the user to get the reviewsPosted array
+    const user = await userCollection.findOne({ _id: new ObjectId(userId) });
+    if (!user || !user.reviewsPosted) throw new Error("User not found or no reviews");
+
+    // Fetch details for each review and the corresponding song
+    const reviewsDetails = await Promise.all(user.reviewsPosted.map(async reviewId => {
+        const review = await reviewCollection.findOne({ _id: new ObjectId(reviewId) });
+        const song = await songCollection.findOne({ _id: new ObjectId(review.songId) });
+        return {
+            songTitle: song.title,
+            artists: song.artist,
+            reviewText: review.text,
+            reviewStars: review.stars,
+            reviewDate: review.postedDate
+        };
+    }));
+
+    //console.log("reviewsDetails: ", reviewsDetails);
+    return reviewsDetails;
   }
 };
 

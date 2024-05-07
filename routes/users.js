@@ -1,5 +1,6 @@
 import { Router } from "express";
 import userData from "../data/users.js";
+import reviewData from "../data/reviews.js";
 import helpers from "../helpers.js";
 
 const router = Router();
@@ -10,15 +11,18 @@ router.get("/profile", async (req, res) => {
         res.redirect("/users/login");
     }
     const userLoggedIn = !!req.session.userId;
+    const userId = req.session.userId;
     try {
         const user = await userData.getUserById(req.session.userId);
+        const reviewsDetails = await reviewData.getUserReviewsWithDetails(userId);
+        console.log(reviewsDetails);
         res.render("profile/profile", {
             title: "Profile",
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            favoriteGenres: user.favoriteGenres.join(', '),
-            reviewsPosted: user.reviewsPosted,
+            favoriteGenres: user.favoriteGenres,
+            reviews: reviewsDetails,
             userLoggedIn: userLoggedIn
         });
     } catch (error) {

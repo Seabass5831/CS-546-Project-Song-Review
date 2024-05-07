@@ -73,14 +73,14 @@ try {
     user1._id,
     "I like this song",
     "positive",
-    5,
+    3,
   ]);
   review2 = await reviews.create([
     song2._id,
     user1._id,
     "I like this song",
     "positive",
-    5,
+    3,
   ]);
   // const delete_review = await reviews.remove(review1._id);
   // console.log(delete_review);
@@ -100,6 +100,7 @@ try {
   console.log(err);
 }
 //create some comments
+/*
 try {
   const comment1 = await comments.create([
     review1._id,
@@ -113,6 +114,7 @@ try {
     "I like this song",
     "2022-01-01",
   ]);
+
   // const delete_comment = await comments.remove(comment1._id);
   // console.log(delete_comment);
   // const get_comment = await comments.get(comment2._id);
@@ -130,6 +132,10 @@ try {
 } catch (err) {
   console.log(err);
 }
+*/
+
+
+
 //create some genres
 try {
   const genre1 = await genres.create(["genre1", "genre1 description"]);

@@ -5,10 +5,17 @@
     <p><strong>Email:</strong> {{email}}</p>
     <p><strong>Favorite Genres:</strong> {{favoriteGenres}}</p>
     <h2>Reviews Posted</h2>
-    <ul>
-        {{#each reviewsPosted}}
-        <li>{{this}}</li>
+    {{#if reviews.length}}
+        {{#each reviews}}
+            <div class="review">
+                <h3>{{this.songTitle}} by {{this.artists}}</h3>
+                <p>Review: {{this.reviewText}}</p>
+                <p>Rating: {{this.reviewStars}}/3</p>
+                <p>Reviewed on: {{this.reviewDate}}</p>
+            </div>
         {{/each}}
-    </ul>
+    {{else}}
+        <p>You have not reviewed any songs yet.</p>
+    {{/if}}
     <a href="/users/logout">Logout</a>
 </main>
